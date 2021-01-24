@@ -266,6 +266,7 @@ FLOWS = [
     "vilfo",
     "vizio",
     "volumio",
+    "vorwerk",
     "waze_travel_time",
     "wemo",
     "wiffi",
