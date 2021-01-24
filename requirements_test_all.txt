@@ -750,6 +750,7 @@ pyatv==0.7.7
 pyblackbird==0.5
 
 # homeassistant.components.neato
+# homeassistant.components.vorwerk
 pybotvac==0.0.21
 
 # homeassistant.components.cloudflare
