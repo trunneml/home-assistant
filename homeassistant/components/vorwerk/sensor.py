@@ -1,4 +1,4 @@
-"""Support for Neato sensors."""
+"""Support for Vorwerk sensors."""
 from datetime import timedelta
 import logging
 
@@ -8,7 +8,7 @@ from homeassistant.components.sensor import DEVICE_CLASS_BATTERY
 from homeassistant.const import PERCENTAGE
 from homeassistant.helpers.entity import Entity
 
-from .const import NEATO_DOMAIN, NEATO_LOGIN, NEATO_ROBOTS, SCAN_INTERVAL_MINUTES
+from .const import VORWERK_DOMAIN, VORWERK_ROBOTS, SCAN_INTERVAL_MINUTES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,11 +18,10 @@ BATTERY = "Battery"
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    """Set up the Neato sensor using config entry."""
+    """Set up the Vorwerk sensor using config entry."""
     dev = []
-    neato = hass.data.get(NEATO_LOGIN)
-    for robot in hass.data[NEATO_ROBOTS]:
-        dev.append(NeatoSensor(neato, robot))
+    for robot in hass.data[VORWERK_ROBOTS]:
+        dev.append(VorwerkSensor(robot))
 
     if not dev:
         return
@@ -31,11 +30,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(dev, True)
 
 
-class NeatoSensor(Entity):
-    """Neato sensor."""
+class VorwerkSensor(Entity):
+    """Vorwerk sensor."""
 
-    def __init__(self, neato, robot):
-        """Initialize Neato sensor."""
+    def __init__(self, robot):
+        """Initialize Vorwerk sensor."""
         self.robot = robot
         self._available = False
         self._robot_name = f"{self.robot.name} {BATTERY}"
@@ -43,13 +42,13 @@ class NeatoSensor(Entity):
         self._state = None
 
     def update(self):
-        """Update Neato Sensor."""
+        """Update Vorwerk Sensor."""
         try:
             self._state = self.robot.state
         except NeatoRobotException as ex:
             if self._available:
                 _LOGGER.error(
-                    "Neato sensor connection error for '%s': %s", self.entity_id, ex
+                    "Vorwerk sensor connection error for '%s': %s", self.entity_id, ex
                 )
             self._state = None
             self._available = False
@@ -90,5 +89,5 @@ class NeatoSensor(Entity):
 
     @property
     def device_info(self):
-        """Device info for neato robot."""
-        return {"identifiers": {(NEATO_DOMAIN, self._robot_serial)}}
+        """Device info for robot."""
+        return {"identifiers": {(VORWERK_DOMAIN, self._robot_serial)}}

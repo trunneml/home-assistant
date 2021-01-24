@@ -1,13 +1,12 @@
-"""Constants for Neato integration."""
+"""Constants for Vorwerk integration."""
 
-NEATO_DOMAIN = "neato"
+VORWERK_DOMAIN = "vorwerk"
 
-CONF_VENDOR = "vendor"
-NEATO_CONFIG = "neato_config"
-NEATO_LOGIN = "neato_login"
-NEATO_MAP_DATA = "neato_map_data"
-NEATO_PERSISTENT_MAPS = "neato_persistent_maps"
-NEATO_ROBOTS = "neato_robots"
+VORWERK_CONFIG = "vorwerk_config"
+VORWERK_LOGIN = "vorwerk_login"
+VORWERK_MAP_DATA = "vorwerk_map_data"
+VORWERK_PERSISTENT_MAPS = "vorwerk_persistent_maps"
+VORWERK_ROBOTS = "vorwerk_robots"
 
 SCAN_INTERVAL_MINUTES = 1
 
@@ -51,7 +50,7 @@ ERRORS = {
     "ui_error_check_battery_switch": "Check battery",
     "ui_error_corrupt_scb": "Call customer service corrupt board",
     "ui_error_deck_debris": "Deck debris",
-    "ui_error_dflt_app": "Check Neato app",
+    "ui_error_dflt_app": "Check MyKobold app",
     "ui_error_disconnect_chrg_cable": "Disconnected charge cable",
     "ui_error_disconnect_usb_cable": "Disconnected USB cable",
     "ui_error_dust_bin_missing": "Dust bin missing",
@@ -60,9 +59,9 @@ ERRORS = {
     "ui_error_hardware_failure": "Hardware failure",
     "ui_error_ldrop_stuck": "Clear my path",
     "ui_error_lds_jammed": "Clear my path",
-    "ui_error_lds_bad_packets": "Check Neato app",
-    "ui_error_lds_disconnected": "Check Neato app",
-    "ui_error_lds_missed_packets": "Check Neato app",
+    "ui_error_lds_bad_packets": "Check MyKobold app",
+    "ui_error_lds_disconnected": "Check MyKobold app",
+    "ui_error_lds_missed_packets": "Check MyKobold app",
     "ui_error_lwheel_stuck": "Clear my path",
     "ui_error_navigation_backdrop_frontbump": "Clear my path",
     "ui_error_navigation_backdrop_leftbump": "Clear my path",
@@ -77,7 +76,7 @@ ERRORS = {
     "ui_error_navigation_rightdrop_leftbump": "Clear my path",
     "ui_error_navigation_undockingfailed": "Clear my path",
     "ui_error_picked_up": "Picked up",
-    "ui_error_qa_fail": "Check Neato app",
+    "ui_error_qa_fail": "Check MyKobold app",
     "ui_error_rdrop_stuck": "Clear my path",
     "ui_error_reconnect_failed": "Reconnect failed",
     "ui_error_rwheel_stuck": "Clear my path",

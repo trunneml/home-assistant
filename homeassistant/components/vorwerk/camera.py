@@ -7,10 +7,10 @@ from pybotvac.exceptions import NeatoRobotException
 from homeassistant.components.camera import Camera
 
 from .const import (
-    NEATO_DOMAIN,
-    NEATO_LOGIN,
-    NEATO_MAP_DATA,
-    NEATO_ROBOTS,
+    VORWERK_DOMAIN,
+    VORWERK_LOGIN,
+    VORWERK_MAP_DATA,
+    VORWERK_ROBOTS,
     SCAN_INTERVAL_MINUTES,
 )
 
@@ -23,9 +23,9 @@ ATTR_GENERATED_AT = "generated_at"
 async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Neato camera with config entry."""
     dev = []
-    neato = hass.data.get(NEATO_LOGIN)
-    mapdata = hass.data.get(NEATO_MAP_DATA)
-    for robot in hass.data[NEATO_ROBOTS]:
+    neato = hass.data.get(VORWERK_LOGIN)
+    mapdata = hass.data.get(VORWERK_MAP_DATA)
+    for robot in hass.data[VORWERK_ROBOTS]:
         if "maps" in robot.traits:
             dev.append(NeatoCleaningMap(neato, robot, mapdata))
 
@@ -123,7 +123,7 @@ class NeatoCleaningMap(Camera):
     @property
     def device_info(self):
         """Device info for neato robot."""
-        return {"identifiers": {(NEATO_DOMAIN, self._robot_serial)}}
+        return {"identifiers": {(VORWERK_DOMAIN, self._robot_serial)}}
 
     @property
     def device_state_attributes(self):

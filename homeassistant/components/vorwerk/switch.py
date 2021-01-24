@@ -1,4 +1,4 @@
-"""Support for Neato Connected Vacuums switches."""
+"""Support for Vorwerk Connected Vacuums switches."""
 from datetime import timedelta
 import logging
 
@@ -7,7 +7,7 @@ from pybotvac.exceptions import NeatoRobotException
 from homeassistant.const import STATE_OFF, STATE_ON
 from homeassistant.helpers.entity import ToggleEntity
 
-from .const import NEATO_DOMAIN, NEATO_LOGIN, NEATO_ROBOTS, SCAN_INTERVAL_MINUTES
+from .const import VORWERK_DOMAIN, VORWERK_ROBOTS, SCAN_INTERVAL_MINUTES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,12 +19,11 @@ SWITCH_TYPES = {SWITCH_TYPE_SCHEDULE: ["Schedule"]}
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    """Set up Neato switch with config entry."""
+    """Set up Vorwerk switch with config entry."""
     dev = []
-    neato = hass.data.get(NEATO_LOGIN)
-    for robot in hass.data[NEATO_ROBOTS]:
+    for robot in hass.data[VORWERK_ROBOTS]:
         for type_name in SWITCH_TYPES:
-            dev.append(NeatoConnectedSwitch(neato, robot, type_name))
+            dev.append(VorwerkConnectedSwitch(robot, type_name))
 
     if not dev:
         return
@@ -33,11 +32,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(dev, True)
 
 
-class NeatoConnectedSwitch(ToggleEntity):
-    """Neato Connected Switches."""
+class VorwerkConnectedSwitch(ToggleEntity):
+    """Vorwerk Connected Switches."""
 
-    def __init__(self, neato, robot, switch_type):
-        """Initialize the Neato Connected switches."""
+    def __init__(self, robot, switch_type):
+        """Initialize the Vorwerk Connected switches."""
         self.type = switch_type
         self.robot = robot
         self._available = False
@@ -48,14 +47,14 @@ class NeatoConnectedSwitch(ToggleEntity):
         self._robot_serial = self.robot.serial
 
     def update(self):
-        """Update the states of Neato switches."""
-        _LOGGER.debug("Running Neato switch update for '%s'", self.entity_id)
+        """Update the states of Vorwerk switches."""
+        _LOGGER.debug("Running Vorwerk switch update for '%s'", self.entity_id)
         try:
             self._state = self.robot.state
         except NeatoRobotException as ex:
             if self._available:  # Print only once when available
                 _LOGGER.error(
-                    "Neato switch connection error for '%s': %s", self.entity_id, ex
+                    "Vorwerk switch connection error for '%s': %s", self.entity_id, ex
                 )
             self._state = None
             self._available = False
@@ -98,8 +97,8 @@ class NeatoConnectedSwitch(ToggleEntity):
 
     @property
     def device_info(self):
-        """Device info for neato robot."""
-        return {"identifiers": {(NEATO_DOMAIN, self._robot_serial)}}
+        """Device info for robot."""
+        return {"identifiers": {(VORWERK_DOMAIN, self._robot_serial)}}
 
     def turn_on(self, **kwargs):
         """Turn the switch on."""
@@ -108,7 +107,7 @@ class NeatoConnectedSwitch(ToggleEntity):
                 self.robot.enable_schedule()
             except NeatoRobotException as ex:
                 _LOGGER.error(
-                    "Neato switch connection error '%s': %s", self.entity_id, ex
+                    "Vorwerk switch connection error '%s': %s", self.entity_id, ex
                 )
 
     def turn_off(self, **kwargs):
@@ -118,5 +117,5 @@ class NeatoConnectedSwitch(ToggleEntity):
                 self.robot.disable_schedule()
             except NeatoRobotException as ex:
                 _LOGGER.error(
-                    "Neato switch connection error '%s': %s", self.entity_id, ex
+                    "Vorwerk switch connection error '%s': %s", self.entity_id, ex
                 )

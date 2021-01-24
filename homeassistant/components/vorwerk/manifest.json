@@ -1,8 +1,8 @@
 {
-  "domain": "neato",
-  "name": "Neato Botvac",
+  "domain": "vorwerk",
+  "name": "Vorwerk Kobold",
   "config_flow": true,
-  "documentation": "https://www.home-assistant.io/integrations/neato",
+  "documentation": "https://www.home-assistant.io/integrations/vorwerk",
   "requirements": [
     "pybotvac==0.0.20"
   ],
