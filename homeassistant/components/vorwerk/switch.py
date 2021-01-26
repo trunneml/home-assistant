@@ -7,7 +7,7 @@ from pybotvac.exceptions import NeatoRobotException
 from homeassistant.const import STATE_OFF, STATE_ON
 from homeassistant.helpers.entity import ToggleEntity
 
-from .const import VORWERK_DOMAIN, VORWERK_ROBOTS, SCAN_INTERVAL_MINUTES
+from .const import VORWERK_DOMAIN, VORWERK_ROBOT, SCAN_INTERVAL_MINUTES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,10 +20,12 @@ SWITCH_TYPES = {SWITCH_TYPE_SCHEDULE: ["Schedule"]}
 
 async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Vorwerk switch with config entry."""
+    robot = hass.data[VORWERK_DOMAIN][entry.entry_id][VORWERK_ROBOT]
+    _LOGGER.debug("Adding sensor for vorwerk robot %s", robot.name)
+
     dev = []
-    for robot in hass.data[VORWERK_ROBOTS]:
-        for type_name in SWITCH_TYPES:
-            dev.append(VorwerkConnectedSwitch(robot, type_name))
+    for type_name in SWITCH_TYPES:
+        dev.append(VorwerkConnectedSwitch(robot, type_name))
 
     if not dev:
         return

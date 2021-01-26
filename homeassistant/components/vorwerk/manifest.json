@@ -8,7 +8,8 @@
   ],
   "codeowners": [
     "@dshokouhi",
-    "@Santobert"
+    "@Santobert",
+    "@trunneml"
   ],
   "dependencies": [
     "http"

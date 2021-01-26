@@ -8,7 +8,7 @@ from homeassistant.components.sensor import DEVICE_CLASS_BATTERY
 from homeassistant.const import PERCENTAGE
 from homeassistant.helpers.entity import Entity
 
-from .const import VORWERK_DOMAIN, VORWERK_ROBOTS, SCAN_INTERVAL_MINUTES
+from .const import VORWERK_DOMAIN, VORWERK_ROBOT, SCAN_INTERVAL_MINUTES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,15 +19,9 @@ BATTERY = "Battery"
 
 async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Vorwerk sensor using config entry."""
-    dev = []
-    for robot in hass.data[VORWERK_ROBOTS]:
-        dev.append(VorwerkSensor(robot))
-
-    if not dev:
-        return
-
-    _LOGGER.debug("Adding robots for sensors %s", dev)
-    async_add_entities(dev, True)
+    robot = hass.data[VORWERK_DOMAIN][entry.entry_id][VORWERK_ROBOT]
+    _LOGGER.debug("Adding sensor for vorwerk robot %s", robot.name)
+    async_add_entities([VorwerkSensor(robot)], True)
 
 
 class VorwerkSensor(Entity):

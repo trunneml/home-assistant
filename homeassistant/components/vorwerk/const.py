@@ -2,11 +2,13 @@
 
 VORWERK_DOMAIN = "vorwerk"
 
-VORWERK_CONFIG = "vorwerk_config"
-VORWERK_LOGIN = "vorwerk_login"
-VORWERK_MAP_DATA = "vorwerk_map_data"
-VORWERK_PERSISTENT_MAPS = "vorwerk_persistent_maps"
-VORWERK_ROBOTS = "vorwerk_robots"
+VORWERK_ROBOT = "robot"
+
+VORWERK_ROBOT_NAME = "name"
+VORWERK_ROBOT_SERIAL = "serial"
+VORWERK_ROBOT_SECRET = "secret"
+VORWERK_ROBOT_TRAITS = "traits"
+VORWERK_ROBOT_ENDPOINT = "endpoint"
 
 SCAN_INTERVAL_MINUTES = 1
 
