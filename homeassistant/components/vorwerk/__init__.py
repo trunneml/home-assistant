@@ -102,7 +102,7 @@ async def async_setup_entry(hass, entry):
 
     hass.data[VORWERK_LOGIN] = hub
 
-    for component in ("camera", "vacuum", "switch", "sensor"):
+    for component in ("vacuum", "switch", "sensor"):
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
@@ -114,7 +114,6 @@ async def async_unload_entry(hass, entry):
     """Unload config entry."""
     hass.data.pop(VORWERK_LOGIN)
     await asyncio.gather(
-        hass.config_entries.async_forward_entry_unload(entry, "camera"),
         hass.config_entries.async_forward_entry_unload(entry, "vacuum"),
         hass.config_entries.async_forward_entry_unload(entry, "switch"),
         hass.config_entries.async_forward_entry_unload(entry, "sensor"),
