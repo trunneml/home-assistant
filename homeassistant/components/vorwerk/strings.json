@@ -2,26 +2,21 @@
   "config": {
     "step": {
       "user": {
-        "title": "Neato Account Info",
+        "title": "Vorwerk Account Info",
         "data": {
-          "username": "[%key:common::config_flow::data::username%]",
-          "password": "[%key:common::config_flow::data::password%]",
-          "vendor": "Vendor"
+          "email": "Email",
+          "code": "Code"
         },
-        "description": "See [Neato documentation]({docs_url})."
+        "description": "To recieve an authentication code, enter the email address of your vorwerk account.\n\nSee [Vorwerk documentation]({docs_url})."
       }
     },
     "error": {
-      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
-      "unknown": "[%key:common::config_flow::error::unknown%]"
-    },
-    "create_entry": {
-      "default": "See [Neato documentation]({docs_url})."
+      "invalid_auth": "Invalid authentication"
     },
     "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
-      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]"
+      "already_configured": "Account is already configured",
+      "invalid_auth": "Invalid authentication"
     }
   },
-  "title": "Vorwerk Kobold"
+  "title": "Vorwerk Botvac"
 }
