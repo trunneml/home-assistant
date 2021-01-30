@@ -7,8 +7,6 @@
     "pybotvac==0.0.20"
   ],
   "codeowners": [
-    "@dshokouhi",
-    "@Santobert",
     "@trunneml"
   ],
   "dependencies": [
