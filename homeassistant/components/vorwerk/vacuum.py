@@ -338,5 +338,5 @@ class VorwerkConnectedVacuum(StateVacuumEntity):
             self.robot.start_cleaning(mode, navigation, category, boundary_id)
         except NeatoRobotException as ex:
             _LOGGER.error(
-                "Vorwerl vacuum connection error for '%s': %s", self.entity_id, ex
+                "Vorwerk vacuum connection error for '%s': %s", self.entity_id, ex
             )
