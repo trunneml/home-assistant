@@ -31,9 +31,9 @@ from .const import (
     ALERTS,
     ERRORS,
     MODE,
+    SCAN_INTERVAL_MINUTES,
     VORWERK_DOMAIN,
     VORWERK_ROBOTS,
-    SCAN_INTERVAL_MINUTES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -71,10 +71,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Vorwerk vacuum with config entry."""
 
     _LOGGER.debug("Adding vorwerk vacuums")
-    async_add_entities([
-        VorwerkConnectedVacuum(robot)
-        for robot in hass.data[VORWERK_DOMAIN][entry.entry_id][VORWERK_ROBOTS]
-    ], True)
+    async_add_entities(
+        [
+            VorwerkConnectedVacuum(robot)
+            for robot in hass.data[VORWERK_DOMAIN][entry.entry_id][VORWERK_ROBOTS]
+        ],
+        True,
+    )
 
     platform = entity_platform.current_platform.get()
     assert platform is not None
@@ -253,7 +256,10 @@ class VorwerkConnectedVacuum(StateVacuumEntity):
     @property
     def device_info(self):
         """Device info for robot."""
-        info = {"identifiers": {(VORWERK_DOMAIN, self._robot_serial)}, "name": self._name}
+        info = {
+            "identifiers": {(VORWERK_DOMAIN, self._robot_serial)},
+            "name": self._name,
+        }
         if self._robot_stats:
             info["manufacturer"] = self._robot_stats["battery"]["vendor"]
             info["model"] = self._robot_stats["model"]

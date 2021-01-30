@@ -1,20 +1,25 @@
 """Config flow to configure Vorwerk integration."""
-
-from enum import unique
-
-from requests.models import HTTPError
-from homeassistant.const import CONF_CODE, CONF_EMAIL, CONF_TOKEN
 import logging
 from typing import Any, Dict
 
 import pybotvac
 from pybotvac.exceptions import NeatoException
+from requests.models import HTTPError
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.const import CONF_CODE, CONF_EMAIL, CONF_TOKEN
 
 # pylint: disable=unused-import
-from .const import VORWERK_DOMAIN, VORWERK_ROBOTS, VORWERK_ROBOT_ENDPOINT, VORWERK_ROBOT_NAME, VORWERK_ROBOT_SECRET, VORWERK_ROBOT_SERIAL, VORWERK_ROBOT_TRAITS
+from .const import (
+    VORWERK_DOMAIN,
+    VORWERK_ROBOT_ENDPOINT,
+    VORWERK_ROBOT_NAME,
+    VORWERK_ROBOT_SECRET,
+    VORWERK_ROBOT_SERIAL,
+    VORWERK_ROBOT_TRAITS,
+    VORWERK_ROBOTS,
+)
 
 DOCS_URL = "https://www.home-assistant.io/integrations/vorwerk"
 
@@ -26,10 +31,10 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
-    
+
     def __init__(self):
         """Initialize the config flow."""
-        self._auth0Session = Auth0PasswordlessSession()
+        self._session = Auth0PasswordlessSession()
 
     async def async_step_user(self, user_input=None):
         """Step when user initializes a integration."""
@@ -45,7 +50,7 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
                 code = user_input.get(CONF_CODE)
                 if code:
                     try:
-                        self._auth0Session.fetch_token_passwordless(email, code)
+                        self._session.fetch_token_passwordless(email, code)
                         robots = [
                             {
                                 VORWERK_ROBOT_NAME: robot["name"],
@@ -54,22 +59,21 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
                                 VORWERK_ROBOT_TRAITS: robot["traits"],
                                 VORWERK_ROBOT_ENDPOINT: robot["nucleo_url"],
                             }
-                            for robot 
-                            in self._auth0Session.get("users/me/robots").json()
+                            for robot in self._session.get("users/me/robots").json()
                         ]
                         data = {
                             CONF_EMAIL: email,
-                            CONF_TOKEN: self._auth0Session.token,
+                            CONF_TOKEN: self._session.token,
                             VORWERK_ROBOTS: robots,
                         }
                         return self.async_create_entry(
                             title=email,
                             data=data,
                         )
-                    except (HTTPError, NeatoException) as ex:
+                    except (HTTPError, NeatoException):
                         errors["base"] = "invalid_auth"
 
-                self._auth0Session.send_email_otp(email)
+                self._session.send_email_otp(email)
 
                 return self.async_show_form(
                     step_id="user",
@@ -80,7 +84,7 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
                         }
                     ),
                     description_placeholders={"docs_url": DOCS_URL},
-                    errors=errors
+                    errors=errors,
                 )
 
         return self.async_show_form(
@@ -91,15 +95,13 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
                 }
             ),
             description_placeholders={"docs_url": DOCS_URL},
-            errors=errors
+            errors=errors,
         )
 
     async def async_step_import(self, user_input: Dict[str, Any]) -> Dict[str, Any]:
         """Import a config flow from configuration."""
         unique_id = "from configuration"
-        data = {
-            VORWERK_ROBOTS: user_input
-        }
+        data = {VORWERK_ROBOTS: user_input}
 
         await self.async_set_unique_id(unique_id)
         self._abort_if_unique_id_configured(data)
@@ -110,16 +112,19 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
             data=data,
         )
 
+
 class Auth0PasswordlessSession(pybotvac.PasswordlessSession):
+    """PasswordlessSession pybotvac session for Vorwerk cloud."""
 
     CLIENT_ID = "KY4YbVAvtgB7lp8vIbWQ7zLk3hssZlhR"
 
     def __init__(self):
+        """Initialize Vorwerk cloud session."""
         super().__init__(
-            client_id=Auth0PasswordlessSession.CLIENT_ID,
-            vendor=pybotvac.Vorwerk()
+            client_id=Auth0PasswordlessSession.CLIENT_ID, vendor=pybotvac.Vorwerk()
         )
 
     @property
     def token(self):
+        """Return the token dict. Contains id_token, access_token and refresh_token."""
         return self._token

@@ -6,7 +6,6 @@ import logging
 from pybotvac.exceptions import NeatoException
 from pybotvac.robot import Robot
 from pybotvac.vorwerk import Vorwerk
-
 import voluptuous as vol
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
@@ -16,12 +15,13 @@ from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 from homeassistant.util import Throttle
 
 from .const import (
-    VORWERK_DOMAIN, 
+    VORWERK_DOMAIN,
+    VORWERK_ROBOT_ENDPOINT,
+    VORWERK_ROBOT_NAME,
+    VORWERK_ROBOT_SECRET,
+    VORWERK_ROBOT_SERIAL,
+    VORWERK_ROBOT_TRAITS,
     VORWERK_ROBOTS,
-    VORWERK_ROBOT_ENDPOINT, 
-    VORWERK_ROBOT_NAME, 
-    VORWERK_ROBOT_SECRET, 
-    VORWERK_ROBOT_SERIAL, VORWERK_ROBOT_TRAITS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,14 +33,16 @@ VORWERK_SCHEMA = vol.Schema(
             vol.Required(VORWERK_ROBOT_NAME): cv.string,
             vol.Required(VORWERK_ROBOT_SERIAL): cv.string,
             vol.Required(VORWERK_ROBOT_SECRET): cv.string,
-            vol.Optional(VORWERK_ROBOT_ENDPOINT, default="https://nucleo.ksecosys.com:4443"): cv.string,
+            vol.Optional(
+                VORWERK_ROBOT_ENDPOINT, default="https://nucleo.ksecosys.com:4443"
+            ): cv.string,
         }
     )
 )
 
 CONFIG_SCHEMA = vol.Schema(
     {VORWERK_DOMAIN: vol.Schema(vol.All(cv.ensure_list, [VORWERK_SCHEMA]))},
-     extra=vol.ALLOW_EXTRA
+    extra=vol.ALLOW_EXTRA,
 )
 
 
@@ -51,9 +53,9 @@ async def async_setup(hass: HomeAssistantType, config: ConfigType) -> bool:
     if VORWERK_DOMAIN in config:
         hass.async_create_task(
             hass.config_entries.flow.async_init(
-                VORWERK_DOMAIN, 
+                VORWERK_DOMAIN,
                 context={"source": SOURCE_IMPORT},
-                data=config[VORWERK_DOMAIN]
+                data=config[VORWERK_DOMAIN],
             )
         )
 
@@ -66,24 +68,25 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry) -> bool
     @Throttle(timedelta(minutes=1))
     def create_robot(config):
         return Robot(
-                serial=config[VORWERK_ROBOT_SERIAL],
-                secret=config[VORWERK_ROBOT_SECRET],
-                traits=config.get(VORWERK_ROBOT_TRAITS, []),
-                vendor=Vorwerk(),
-                name=config[VORWERK_ROBOT_NAME],
-                endpoint=config[VORWERK_ROBOT_ENDPOINT]
-            )
+            serial=config[VORWERK_ROBOT_SERIAL],
+            secret=config[VORWERK_ROBOT_SECRET],
+            traits=config.get(VORWERK_ROBOT_TRAITS, []),
+            vendor=Vorwerk(),
+            name=config[VORWERK_ROBOT_NAME],
+            endpoint=config[VORWERK_ROBOT_ENDPOINT],
+        )
 
     try:
-        robots = await asyncio.gather(*[
-            hass.async_add_executor_job(create_robot, robot_conf)
-            for robot_conf in entry.data[VORWERK_ROBOTS]
-        ])
+        robots = await asyncio.gather(
+            *[
+                hass.async_add_executor_job(create_robot, robot_conf)
+                for robot_conf in entry.data[VORWERK_ROBOTS]
+            ]
+        )
         hass.data[VORWERK_DOMAIN][entry.entry_id] = {VORWERK_ROBOTS: robots}
     except NeatoException as ex:
-        _LOGGER.warn(
-            "Failed to connect to robot %s: %s", 
-            entry.data[VORWERK_ROBOT_NAME], ex
+        _LOGGER.warning(
+            "Failed to connect to robot %s: %s", entry.data[VORWERK_ROBOT_NAME], ex
         )
         raise ConfigEntryNotReady from ex
 
