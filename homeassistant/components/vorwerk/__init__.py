@@ -33,7 +33,7 @@ VORWERK_SCHEMA = vol.Schema(
             vol.Required(VORWERK_ROBOT_NAME): cv.string,
             vol.Required(VORWERK_ROBOT_SERIAL): cv.string,
             vol.Required(VORWERK_ROBOT_SECRET): cv.string,
-            vol.Required(VORWERK_ROBOT_ENDPOINT): cv.string,
+            vol.Optional(VORWERK_ROBOT_ENDPOINT, default="https://nucleo.ksecosys.com:4443"): cv.string,
         }
     )
 )
