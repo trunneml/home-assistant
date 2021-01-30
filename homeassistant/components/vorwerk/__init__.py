@@ -17,11 +17,11 @@ from homeassistant.util import Throttle
 
 from .const import (
     VORWERK_DOMAIN, 
-    VORWERK_ROBOT,
+    VORWERK_ROBOTS,
     VORWERK_ROBOT_ENDPOINT, 
     VORWERK_ROBOT_NAME, 
     VORWERK_ROBOT_SECRET, 
-    VORWERK_ROBOT_SERIAL,
+    VORWERK_ROBOT_SERIAL, VORWERK_ROBOT_TRAITS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,13 +48,15 @@ async def async_setup(hass: HomeAssistantType, config: ConfigType) -> bool:
     """Set up the Vorwerk component."""
     hass.data[VORWERK_DOMAIN] = {}
 
-    for cfg in config[VORWERK_DOMAIN]:
-        _LOGGER.debug("Found robot definition in config: %s", cfg[VORWERK_ROBOT_NAME])
+    if VORWERK_DOMAIN in config:
         hass.async_create_task(
             hass.config_entries.flow.async_init(
-                VORWERK_DOMAIN, context={"source": SOURCE_IMPORT}, data=cfg
+                VORWERK_DOMAIN, 
+                context={"source": SOURCE_IMPORT},
+                data=config[VORWERK_DOMAIN]
             )
         )
+
     return True
 
 
@@ -66,15 +68,18 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry) -> bool
         return Robot(
                 serial=config[VORWERK_ROBOT_SERIAL],
                 secret=config[VORWERK_ROBOT_SECRET],
-                traits=[],
+                traits=config.get(VORWERK_ROBOT_TRAITS, []),
                 vendor=Vorwerk(),
                 name=config[VORWERK_ROBOT_NAME],
                 endpoint=config[VORWERK_ROBOT_ENDPOINT]
             )
 
     try:
-        robot = await hass.async_add_executor_job(create_robot, entry.data)
-        hass.data[VORWERK_DOMAIN][entry.entry_id] = {VORWERK_ROBOT: robot}
+        robots = await asyncio.gather(*[
+            hass.async_add_executor_job(create_robot, robot_conf)
+            for robot_conf in entry.data[VORWERK_ROBOTS]
+        ])
+        hass.data[VORWERK_DOMAIN][entry.entry_id] = {VORWERK_ROBOTS: robots}
     except NeatoException as ex:
         _LOGGER.warn(
             "Failed to connect to robot %s: %s", 

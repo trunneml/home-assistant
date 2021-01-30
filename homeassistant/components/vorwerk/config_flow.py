@@ -1,5 +1,6 @@
 """Config flow to configure Vorwerk integration."""
 
+from enum import unique
 import logging
 from typing import Any, Dict
 
@@ -7,7 +8,7 @@ from typing import Any, Dict
 from homeassistant import config_entries
 
 # pylint: disable=unused-import
-from .const import VORWERK_DOMAIN, VORWERK_ROBOT_NAME, VORWERK_ROBOT_SERIAL, VORWERK_ROBOT_TRAITS
+from .const import VORWERK_DOMAIN, VORWERK_ROBOTS, VORWERK_ROBOT_NAME, VORWERK_ROBOT_SERIAL, VORWERK_ROBOT_TRAITS
 
 DOCS_URL = "https://www.home-assistant.io/integrations/neato"
 
@@ -22,21 +23,16 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
 
     async def async_step_import(self, user_input: Dict[str, Any]) -> Dict[str, Any]:
         """Import a config flow from configuration."""
-        name: str =  user_input[VORWERK_ROBOT_NAME]
-        serial: str = user_input[VORWERK_ROBOT_SERIAL]
+        unique_id = "from configuration"
+        data = {
+            VORWERK_ROBOTS: user_input
+        }
 
-        if self.robot_exists(serial):
-            _LOGGER.debug("Vorwerk robot with serial already configured", serial)
-            return self.async_abort(reason="already_configured")
+        await self.async_set_unique_id(unique_id)
+        self._abort_if_unique_id_configured(data)
 
-        _LOGGER.info("Creating new Vorwerk robot config entry: %s/%s", name, serial)
+        _LOGGER.info("Creating new Vorwerk robot config entry")
         return self.async_create_entry(
-            title=f"{name} (from configuration)",
-            data=user_input,
+            title="from configuration",
+            data=data,
         )
-
-    def robot_exists(self, robot_serial: str) -> bool:
-        for entry in self._async_current_entries():
-            if robot_serial == entry.data.get(VORWERK_ROBOT_SERIAL):
-                return True
-        return False

@@ -2,7 +2,7 @@
 
 VORWERK_DOMAIN = "vorwerk"
 
-VORWERK_ROBOT = "robot"
+VORWERK_ROBOTS = "robots"
 
 VORWERK_ROBOT_NAME = "name"
 VORWERK_ROBOT_SERIAL = "serial"

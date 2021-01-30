@@ -32,7 +32,7 @@ from .const import (
     ERRORS,
     MODE,
     VORWERK_DOMAIN,
-    VORWERK_ROBOT,
+    VORWERK_ROBOTS,
     SCAN_INTERVAL_MINUTES,
 )
 
@@ -70,9 +70,11 @@ ATTR_ZONE = "zone"
 async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Vorwerk vacuum with config entry."""
 
-    robot = hass.data[VORWERK_DOMAIN][entry.entry_id][VORWERK_ROBOT]
-    _LOGGER.debug("Adding sensor for vorwerk robot %s", robot.name)
-    async_add_entities([VorwerkConnectedVacuum(robot)], True)
+    _LOGGER.debug("Adding vorwerk vacuums")
+    async_add_entities([
+        VorwerkConnectedVacuum(robot)
+        for robot in hass.data[VORWERK_DOMAIN][entry.entry_id][VORWERK_ROBOTS]
+    ], True)
 
     platform = entity_platform.current_platform.get()
     assert platform is not None
