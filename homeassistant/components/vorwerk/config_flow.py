@@ -2,13 +2,14 @@
 import logging
 from typing import Any, Dict
 
-import pybotvac
 from pybotvac.exceptions import NeatoException
 from requests.models import HTTPError
 import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_CODE, CONF_EMAIL, CONF_TOKEN
+
+from . import authsession
 
 # pylint: disable=unused-import
 from .const import (
@@ -34,7 +35,7 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
 
     def __init__(self):
         """Initialize the config flow."""
-        self._session = Auth0PasswordlessSession()
+        self._session = authsession.VorwerkSession()
 
     async def async_step_user(self, user_input=None):
         """Step when user initializes a integration."""
@@ -111,20 +112,3 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
             title="from configuration",
             data=data,
         )
-
-
-class Auth0PasswordlessSession(pybotvac.PasswordlessSession):
-    """PasswordlessSession pybotvac session for Vorwerk cloud."""
-
-    CLIENT_ID = "KY4YbVAvtgB7lp8vIbWQ7zLk3hssZlhR"
-
-    def __init__(self):
-        """Initialize Vorwerk cloud session."""
-        super().__init__(
-            client_id=Auth0PasswordlessSession.CLIENT_ID, vendor=pybotvac.Vorwerk()
-        )
-
-    @property
-    def token(self):
-        """Return the token dict. Contains id_token, access_token and refresh_token."""
-        return self._token
