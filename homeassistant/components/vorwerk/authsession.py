@@ -5,6 +5,7 @@ import pybotvac
 class VorwerkSession(pybotvac.PasswordlessSession):
     """PasswordlessSession pybotvac session for Vorwerk cloud."""
 
+    # The client_id is the same for all users.
     CLIENT_ID = "KY4YbVAvtgB7lp8vIbWQ7zLk3hssZlhR"
 
     def __init__(self):
