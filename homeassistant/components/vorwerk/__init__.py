@@ -79,10 +79,11 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry) -> bool
 
     try:
         robots = await asyncio.gather(
-            *[
+            *(
                 hass.async_add_executor_job(create_robot, robot_conf)
                 for robot_conf in entry.data[VORWERK_ROBOTS]
-            ]
+            ),
+            return_exceptions=False,
         )
         hass.data[VORWERK_DOMAIN][entry.entry_id] = {VORWERK_ROBOTS: robots}
     except NeatoException as ex:
