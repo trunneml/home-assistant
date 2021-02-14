@@ -16,6 +16,7 @@ from homeassistant.util import Throttle
 
 from .const import (
     VORWERK_DOMAIN,
+    VORWERK_PLATFORMS,
     VORWERK_ROBOT_ENDPOINT,
     VORWERK_ROBOT_NAME,
     VORWERK_ROBOT_SECRET,
@@ -90,7 +91,7 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry) -> bool
         )
         raise ConfigEntryNotReady from ex
 
-    for component in ("vacuum", "switch", "sensor"):
+    for component in VORWERK_PLATFORMS:
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
@@ -102,9 +103,10 @@ async def async_unload_entry(hass: HomeAssistantType, entry: ConfigEntry) -> boo
     """Unload config entry."""
     unload_ok: bool = all(
         await asyncio.gather(
-            hass.config_entries.async_forward_entry_unload(entry, "vacuum"),
-            hass.config_entries.async_forward_entry_unload(entry, "switch"),
-            hass.config_entries.async_forward_entry_unload(entry, "sensor"),
+            *(
+                hass.config_entries.async_forward_entry_unload(entry, component)
+                for component in VORWERK_PLATFORMS
+            )
         )
     )
     if unload_ok:

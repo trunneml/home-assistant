@@ -10,6 +10,8 @@ VORWERK_ROBOT_SECRET = "secret"
 VORWERK_ROBOT_TRAITS = "traits"
 VORWERK_ROBOT_ENDPOINT = "endpoint"
 
+VORWERK_PLATFORMS = ["vacuum", "switch", "sensor"]
+
 SCAN_INTERVAL_MINUTES = 1
 
 MODE = {1: "Eco", 2: "Turbo"}
