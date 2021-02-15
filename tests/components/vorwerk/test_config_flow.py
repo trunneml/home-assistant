@@ -138,23 +138,21 @@ async def test_user_full(hass: HomeAssistantType):
             result["flow_id"],
             user_input={CONF_EMAIL: email},
         )
-
         assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
-        assert result["step_id"] == "user"
-        assert not result["errors"]
+        assert result["step_id"] == "code"
         mock_session.send_email_otp.assert_called_once_with(email)
         _flow_next(hass, result["flow_id"])
 
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            user_input={CONF_EMAIL: email, CONF_CODE: "123456"},
+            user_input={CONF_CODE: "123456"},
         )
-        mock_session.fetch_token_passwordless.assert_called_once_with(email, "123456")
-        mock_session.get.assert_called_once_with("users/me/robots")
         assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
         assert result["title"] == email
         assert result["result"].unique_id == email
         assert dict(result["result"].data) == result_data
+        mock_session.fetch_token_passwordless.assert_called_once_with(email, "123456")
+        mock_session.get.assert_called_once_with("users/me/robots")
 
 
 async def test_user_code_invalid_2nd_try(hass: HomeAssistantType):
@@ -204,7 +202,7 @@ async def test_user_code_invalid_2nd_try(hass: HomeAssistantType):
             user_input={CONF_EMAIL: email},
         )
         assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
-        assert result["step_id"] == "user"
+        assert result["step_id"] == "code"
         assert not result["errors"]
         mock_session.send_email_otp.assert_called_once_with(email)
         mock_session.reset_mock()
@@ -212,20 +210,20 @@ async def test_user_code_invalid_2nd_try(hass: HomeAssistantType):
 
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            user_input={CONF_EMAIL: email, CONF_CODE: "123456"},
+            user_input={CONF_CODE: "123456"},
         )
         mock_session.fetch_token_passwordless.assert_called_once_with(email, "123456")
         mock_session.get.assert_not_called()
         mock_session.send_email_otp.assert_called_once_with(email)
         assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
-        assert result["step_id"] == "user"
+        assert result["step_id"] == "code"
         assert result["errors"] == {"base": "invalid_auth"}
         _flow_next(hass, result["flow_id"])
 
         mock_session.reset_mock()
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            user_input={CONF_EMAIL: email, CONF_CODE: "123456"},
+            user_input={CONF_CODE: "123456"},
         )
         mock_session.send_email_otp.assert_not_called()
         mock_session.fetch_token_passwordless.assert_called_once_with(email, "123456")

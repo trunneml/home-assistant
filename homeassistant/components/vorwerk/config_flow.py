@@ -1,6 +1,6 @@
 """Config flow to configure Vorwerk integration."""
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from pybotvac.exceptions import NeatoException
 from requests.models import HTTPError
@@ -35,64 +35,54 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
 
     def __init__(self):
         """Initialize the config flow."""
+        self._email: Optional[str] = None
         self._session = authsession.VorwerkSession()
 
     async def async_step_user(self, user_input=None):
         """Step when user initializes a integration."""
 
-        errors = {}
-
         if user_input is not None:
-            email = user_input.get(CONF_EMAIL)
-            if email:
-                await self.async_set_unique_id(email)
+            self._email = user_input.get(CONF_EMAIL)
+            if self._email:
+                await self.async_set_unique_id(self._email)
                 self._abort_if_unique_id_configured()
-
-                code = user_input.get(CONF_CODE)
-                if code:
-                    try:
-                        self._session.fetch_token_passwordless(email, code)
-                        robots = [
-                            {
-                                VORWERK_ROBOT_NAME: robot["name"],
-                                VORWERK_ROBOT_SERIAL: robot["serial"],
-                                VORWERK_ROBOT_SECRET: robot["secret_key"],
-                                VORWERK_ROBOT_TRAITS: robot["traits"],
-                                VORWERK_ROBOT_ENDPOINT: robot["nucleo_url"],
-                            }
-                            for robot in self._session.get("users/me/robots").json()
-                        ]
-                        data = {
-                            CONF_EMAIL: email,
-                            CONF_TOKEN: self._session.token,
-                            VORWERK_ROBOTS: robots,
-                        }
-                        return self.async_create_entry(
-                            title=email,
-                            data=data,
-                        )
-                    except (HTTPError, NeatoException):
-                        errors["base"] = "invalid_auth"
-
-                self._session.send_email_otp(email)
-
-                return self.async_show_form(
-                    step_id="user",
-                    data_schema=vol.Schema(
-                        {
-                            vol.Required(CONF_EMAIL, default=email): str,
-                            vol.Required(CONF_CODE): str,
-                        }
-                    ),
-                    description_placeholders={"docs_url": DOCS_URL},
-                    errors=errors,
-                )
+                return await self.async_step_code()
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_EMAIL): str,
+                }
+            ),
+            description_placeholders={"docs_url": DOCS_URL},
+        )
+
+    async def async_step_code(self, user_input: Dict[str, Any] = {}) -> Dict[str, Any]:
+        """Step when user enters OTP Code from email."""
+        assert self._email is not None  # typing
+        errors = {}
+        code = user_input.get(CONF_CODE) if user_input else None
+        if code:
+            try:
+                robots = await self.async_get_robots(self._email, code)
+                return self.async_create_entry(
+                    title=self._email,
+                    data={
+                        CONF_EMAIL: self._email,
+                        CONF_TOKEN: self._session.token,
+                        VORWERK_ROBOTS: robots,
+                    },
+                )
+            except (HTTPError, NeatoException):
+                errors["base"] = "invalid_auth"
+
+        self._session.send_email_otp(self._email)
+        return self.async_show_form(
+            step_id="code",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_CODE): str,
                 }
             ),
             description_placeholders={"docs_url": DOCS_URL},
@@ -112,3 +102,17 @@ class VorwerkConfigFlow(config_entries.ConfigFlow, domain=VORWERK_DOMAIN):
             title="from configuration",
             data=data,
         )
+
+    async def async_get_robots(self, email: str, code: str):
+        """Fetch the robot list from vorwerk."""
+        self._session.fetch_token_passwordless(email, code)
+        return [
+            {
+                VORWERK_ROBOT_NAME: robot["name"],
+                VORWERK_ROBOT_SERIAL: robot["serial"],
+                VORWERK_ROBOT_SECRET: robot["secret_key"],
+                VORWERK_ROBOT_TRAITS: robot["traits"],
+                VORWERK_ROBOT_ENDPOINT: robot["nucleo_url"],
+            }
+            for robot in self._session.get("users/me/robots").json()
+        ]
