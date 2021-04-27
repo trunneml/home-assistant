@@ -13,7 +13,7 @@ VORWERK_ROBOT_SECRET = "secret"
 VORWERK_ROBOT_TRAITS = "traits"
 VORWERK_ROBOT_ENDPOINT = "endpoint"
 
-VORWERK_PLATFORMS = ["vacuum"]
+VORWERK_PLATFORMS = ["vacuum", "switch", "sensor"]
 
 # The client_id is the same for all users.
 VORWERK_CLIENT_ID = "KY4YbVAvtgB7lp8vIbWQ7zLk3hssZlhR"
