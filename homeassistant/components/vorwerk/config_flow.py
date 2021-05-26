@@ -11,7 +11,6 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_CODE, CONF_EMAIL, CONF_TOKEN
-
 from homeassistant.data_entry_flow import FlowResult
 
 # pylint: disable=unused-import
